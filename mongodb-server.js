@@ -6,7 +6,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 // const tm = require( 'text-miner');
-// const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const MongoClient = require('mongodb').MongoClient;
 const { connect } = require('http2');
 
@@ -37,7 +37,7 @@ app.use(bodyParser.json());
 // });
 // const Student = mongoose.model('students', studentSchema);
 
-app.post('/api/signup', async function (req, res) {
+app.post('/api/signups', async function (req, res) {
   const { ipAdd, portNum, dbName } = req.body;
   const uri = `mongodb://${ipAdd}:${portNum}/${dbName}`;
 
@@ -58,6 +58,25 @@ app.post('/api/signup', async function (req, res) {
       return res.send(result);
     })
   })
+  
+const mongoUrl = 'mongodb://172.104.174.187:27017/local';
+mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'Error connecting to MongoDB'));
+db.once('open', () => console.log('Connected to MongoDB'));
+
+app.get('/api/get-data', async (req, res) => {
+
+try {
+
+        const fetched = await startups.find({}).select('startTimeLocal hostname -_id');
+        return res.status(200).json(fetched);
+} catch (err) {
+        console.error(err);
+        return res.status(500).json({message: 'Server error'});
+}
+});
   // mongoose.connect(`mongodb://${ipAdd}:${portNum}/${dbName}`);
   // let isConnected = false;
   // const fluffy = new Student({ name: 'sameer' });
