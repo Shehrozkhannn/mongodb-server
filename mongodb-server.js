@@ -1,64 +1,32 @@
 const express = require('express');
-const app = express();
-// const http = require("http");
-// const mysql = require('mysql');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-// const tm = require( 'text-miner');
+const mysql = require('mysql');
 const mongoose = require('mongoose');
-const MongoClient = require('mongodb').MongoClient;
-const { connect } = require('http2');
+const startups = require('./db.js');
 
-const port = process.env.PORT || 4128;
+const app = express();
 
-// const server = http.createServer(app);
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-// mongoose.set('strictQuery', true);
-// mongoose.set('strictQuery', true);
-// ip: localhost | 172.104.174.187
-// port: 27017
-// database: FirstDemo
-// mongoose.connect(`mongodb://localhost:27017/FirstDemo`);
-//Mongologs
+const pool = mysql.createPool({
+          connectionLimit: 10,
+          host: 'localhost',
+          user: 'root',
+          password: 'password',
+          database: 'users',
+          socketPath: '/var/run/mysqld/mysqld.sock'
+});
 
-// const connection = mongoose.connection;
-// connection.once('open', () => {
-//   console.log('MongoDB database connection established successfully');
-//   isConnected = true;
-// });
-// const Schema = mongoose.Schema;
+app.get('/test-connection', (req, res) => {
+          pool.getConnection((err, connection) => {
+                      if (err) {
+                                    console.error('Error connecting to MySQL: ' + err.stack);
+                                    return res.status(500).send('Error connecting to MySQL');
+                                  }
 
-// const studentSchema = new Schema({
-//   name: { type: String },
-//   age: { type: Number }
-// });
-// const Student = mongoose.model('students', studentSchema);
+                      console.log('Connected to MySQL as ID ' + connection.threadId);
+                      connection.release();
+                      return res.send('Connected to MySQL!');
+                    });
+});
 
-app.post('/api/signups', async function (req, res) {
-  const { ipAdd, portNum, dbName } = req.body;
-  const uri = `mongodb://${ipAdd}:${portNum}/${dbName}`;
-
-  MongoClient.connect(uri, {useNewUrlParser: true}, function(err, client) {
-    if (err) {
-      return console.error(err);
-    }
-    const db = client.db(`${dbName}`);
-    const logs = db.collection('startup_log');
-    
-    logs.find().toArray(function(err, result) {
-      if (err) {
-        return console.error(err);
-      }
-      console.log(result);
-      // console.log("result");
-      client.close();
-      return res.send(result);
-    })
-  })
-  
 const mongoUrl = 'mongodb://172.104.174.187:27017/local';
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
@@ -66,7 +34,7 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Error connecting to MongoDB'));
 db.once('open', () => console.log('Connected to MongoDB'));
 
-app.get('/api/get-data', async (req, res) => {
+app.get('/test-mongo', async (req, res) => {
 
 try {
 
@@ -77,31 +45,7 @@ try {
         return res.status(500).json({message: 'Server error'});
 }
 });
-  // mongoose.connect(`mongodb://${ipAdd}:${portNum}/${dbName}`);
-  // let isConnected = false;
-  // const fluffy = new Student({ name: 'sameer' });
-  // await fluffy.save();
-  
-  // const result
-  // mongoose.connect(`mongodb://localhost:27017/FirstDemo`);
-  // const result = await Student.find()
-  // res.send(result);
-});
-
-// app.get('/api/students', async function (req,res) {
-//   mongoose.connect(`mongodb://localhost:27017/FirstDemo`);
-//   const result = await Student.find({name:'Zain Raza'})
-//   res.send(result);
-// })
-
-app.listen(port, () => {
-  console.log(`App started on port: ${port}`);
-  // MongoClient.connect((`mongodb://localhost:27017`,
-  // {useNewUrlParser:true , useUnifiedTopology:true}))
-})
 
 
-// server.listen(3054, () => {
-//   console.log(`Socket port: ${3054}`)
-// })
-
+const PORT = process.env.PORT || 4128;
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
