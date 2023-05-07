@@ -34,8 +34,8 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Error connecting to MongoDB'));
 db.once('open', () => console.log('Connected to MongoDB'));
 
-app.get('/api/get-data', async (req, res) => {
-
+app.post('/api/get-data', async (req, res) => {
+const { ipAdd, portNum, dbName } = req.body;
 try {
 
         const fetched = await startups.find({}).select('startTimeLocal hostname -_id');
