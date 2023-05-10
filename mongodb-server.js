@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql');
+// const mysql = require('mysql');
 const mongoose = require('mongoose');
 const startups = require('./db.js');
 const cors = require('cors');
@@ -12,27 +12,27 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const pool = mysql.createPool({
-          connectionLimit: 10,
-          host: 'localhost',
-          user: 'root',
-          password: 'password',
-          database: 'users',
-          socketPath: '/var/run/mysqld/mysqld.sock'
-});
+// const pool = mysql.createPool({
+//           connectionLimit: 10,
+//           host: 'localhost',
+//           user: 'root',
+//           password: 'password',
+//           database: 'users',
+//           socketPath: '/var/run/mysqld/mysqld.sock'
+// });
 
-app.get('/test-connection', (req, res) => {
-          pool.getConnection((err, connection) => {
-                      if (err) {
-                                    console.error('Error connecting to MySQL: ' + err.stack);
-                                    return res.status(500).send('Error connecting to MySQL');
-                                  }
+// app.get('/test-connection', (req, res) => {
+//           pool.getConnection((err, connection) => {
+//                       if (err) {
+//                                     console.error('Error connecting to MySQL: ' + err.stack);
+//                                     return res.status(500).send('Error connecting to MySQL');
+//                                   }
 
-                      console.log('Connected to MySQL as ID ' + connection.threadId);
-                      connection.release();
-                      return res.send('Connected to MySQL!');
-                    });
-});
+//                       console.log('Connected to MySQL as ID ' + connection.threadId);
+//                       connection.release();
+//                       return res.send('Connected to MySQL!');
+//                     });
+// });
 
 const mongoUrl = 'mongodb://172.104.174.187:27017/local';
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
