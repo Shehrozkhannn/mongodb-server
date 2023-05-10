@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const startups = require('./db.js');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const moment = require('moment');
+const axios = require('axios');
 
 const app = express();
 app.use(cors());
@@ -40,15 +42,31 @@ db.on('error', console.error.bind(console, 'Error connecting to MongoDB'));
 db.once('open', () => console.log('Connected to MongoDB'));
 
 app.post('/api/get-data', async (req, res) => {
-const { ipAdd, portNum, dbName } = req.body;
-try {
+        const { ipAdd, portNum, dbName } = req.body;
+        const currentTime = moment().format('MMMM Do YYYY hh:mm:ss a');          
+        axios.post("http://172.104.174.187:4000/api/add-history", 
+        {
+                id: ipAdd, 
+                con_type: "mongodb", 
+                timestamp: currentTime
+        });
+        try {
 
-        const fetched = await startups.find({}).select('startTimeLocal hostname -_id');
-        return res.status(200).json(fetched);
-} catch (err) {
-        console.error(err);
-        return res.status(500).json({message: 'Server error'});
-}
+                const fetched = await startups.find({}).select('startTimeLocal hostname -_id');
+                const strResult = JSON.stringify(fetched);  
+                axios.post("http://172.104.174.187:4000/api/set/arch-logs", 
+                { 
+                  user_id: ipAdd,
+                  data_src: "mongodb",
+                  log_data: strResult
+                });
+                console.log("MongodB Data Archived!")
+
+                return res.status(200).json(fetched);
+        } catch (err) {
+                console.error(err);
+                return res.status(500).json({message: 'Server error'});
+        }
 });
 
 
