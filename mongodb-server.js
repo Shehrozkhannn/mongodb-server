@@ -34,7 +34,8 @@ app.use(bodyParser.json());
 //                     });
 // });
 
-const mongoUrl = 'mongodb://172.104.174.187:27017/local';
+const mongoUrl = 'mongodb://mongouser:password@172.104.174.187:27017/local';
+
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 
